@@ -6,8 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 private const val TAG = "CrimeListFragment"
 
@@ -29,10 +34,6 @@ class CrimeListFragment : Fragment() {
     // just like in MainActivity to obtain the viewModel, crimeListViewModel will fetch data list in CrimeListViewModel
     private val crimeListViewModel: CrimeListViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}")
-    }
 
 // Bundle represents a saved state of the fragment, to restore fragments previous state when it is recreated
     //such as after a device rotation
@@ -48,16 +49,29 @@ class CrimeListFragment : Fragment() {
         //binding the layout using layoutManager, using LinearLayoutManager which will position items in list vertically one after another
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        val crimes = crimeListViewModel.crimes // retrieves the list of crimes from the viewModel, list represents that data will be displayed in recyclerview
-        val adapter = CrimeListAdapter(crimes) // this initializes the CrimeListAdapter with the list of crimes
-        binding.crimeRecyclerView.adapter = adapter //sets the adapter for recyclerView
-        //crimeRecyclerView is the recyclerView defined in the XML fragment_crime_list
-        //binding.crimeRecyclerView refers to the RecyclerView in the fragments layout that is now providing references to it as well
+//        val crimes = crimeListViewModel.crimes
+//        val adapter = CrimeListAdapter(crimes)
+//        binding.crimeRecyclerView.adapter = adapter
+    //NOTE:since we are using coroutines now and we have delayed it by 5000ms so there is no need of this
 
-       //returning the root view of the layout,
-        // it ensures the fragment has a UI to display
-        //essential for functioning of the fragment within the android lifecycle
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //Consuming data from coroutine
+
+        //viewLifecycleOwner is a reference to the lifecycle of Fragment's view (inflated xml file for fragment) than than the fragment itself
+        //launching the coroutine inside the fragment, (lifecycleScope---> that specifies coroutine scope for fragment, launch tells you it's a coroutine)
+      // repeatOnLifecycle --> suspending function to execute coroutine code that was in ListViewModel
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val crimes = crimeListViewModel.loadCrimes()
+                binding.crimeRecyclerView.adapter =
+                    CrimeListAdapter(crimes)
+            }
+        }
     }
 
     override fun onDestroyView() {
