@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 private const val TAG = "CrimeListFragment"
 
@@ -67,9 +68,13 @@ class CrimeListFragment : Fragment() {
       // repeatOnLifecycle --> suspending function to execute coroutine code that was in ListViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val crimes = crimeListViewModel.loadCrimes()
-                binding.crimeRecyclerView.adapter =
-                    CrimeListAdapter(crimes)
+                //val crimes = crimeListViewModel.loadCrimes()
+                //crimeListViewModel is a flow that emits a list fo crimes
+                //lambda function receives emitted value as crimes(list of crime objects) from crimeListViewModel.crimes
+                crimeListViewModel.crimes.collect { crimes ->
+                    binding.crimeRecyclerView.adapter =
+                        CrimeListAdapter(crimes)
+                }
             }
         }
     }

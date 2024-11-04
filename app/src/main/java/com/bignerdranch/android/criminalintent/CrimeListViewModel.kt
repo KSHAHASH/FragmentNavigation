@@ -3,6 +3,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
@@ -12,34 +15,22 @@ import java.util.UUID
 //MainActivity will host and instance of CrimeListFragment, which in turn will daiplay the list of crimes on the screen
 class CrimeListViewModel : ViewModel() {
 
+    private val crimeRepository = CrimeRepository.get()
+    //val crimes = crimeRepository.getCrimes()
 
-    val crimes = mutableListOf<Crime>()
-
-        init {
-            Log.d("CrimeListViewModel", "init starting")
-            //launching a coroutine using viewModelScope property
-            viewModelScope.launch {
-                Log.d("CrimeListViewModel", "Coroutine launched")
-                    crimes += loadCrimes()
-                }
-                Log.d("CrimeListViewModel", "Loading crimes finished")
+    //first step in setting stateFlow is to create instance of MutableStateFlow and providing initial empty value
+    private val _crimes: MutableStateFlow<List<Crime>> = MutableStateFlow(emptyList())
+    val crimes: StateFlow<List<Crime>>
+        get() = _crimes.asStateFlow()
+    init {
+        //launching a coroutine using viewModelScope property
+        viewModelScope.launch {
+            crimeRepository.getCrimes().collect(){
+                //assigns the value to the _crimes, _crimes.value gives the current list of Crime objects
+                //.value is a way to directly access current data in a mutableState Flow
+                _crimes.value = it
             }
-
-
-    //creating suspending function
-    suspend fun loadCrimes(): List<Crime> {
-        val result = mutableListOf<Crime>()
-        delay(5000)
-        for (i in 0 until 100){
-            val crime = Crime(
-                id = UUID.randomUUID(),
-                title = "Crime #$i",
-                date = Date(),
-                isSolved = i % 2 == 0,
-                requiresPolice = i % 5 == 0
-            )
-            result += crime
         }
-        return result
     }
+
 }
