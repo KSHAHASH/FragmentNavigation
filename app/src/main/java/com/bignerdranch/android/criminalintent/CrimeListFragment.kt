@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
 import kotlinx.coroutines.Job
@@ -73,7 +74,13 @@ class CrimeListFragment : Fragment() {
                 //lambda function receives emitted value as crimes(list of crime objects) from crimeListViewModel.crimes
                 crimeListViewModel.crimes.collect { crimes ->
                     binding.crimeRecyclerView.adapter =
-                        CrimeListAdapter(crimes)
+                        CrimeListAdapter(crimes){crimeID ->
+                            //crimeID passed
+                            //id is of the action in the navgraph which tells the fragment it is pointing to
+                            //findNavController().navigate(R.id.show_crime_detail) --before
+                            //after using the safe args class it replaces(R.id.show_crime_detail) className(safeargs generated).id(put on action)
+                            findNavController().navigate(CrimeListFragmentDirections.showCrimeDetail(crimeID))
+                        }
                 }
             }
         }

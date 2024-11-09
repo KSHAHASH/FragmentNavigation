@@ -15,6 +15,7 @@ import java.util.UUID
 //MainActivity will host and instance of CrimeListFragment, which in turn will daiplay the list of crimes on the screen
 class CrimeListViewModel : ViewModel() {
 
+    //accessing singleton instance of the CrimeRepository class, get() is a companion object function in CrimeRepository to provide access to singleton instance
     private val crimeRepository = CrimeRepository.get()
     //val crimes = crimeRepository.getCrimes()
 
@@ -28,6 +29,8 @@ class CrimeListViewModel : ViewModel() {
             crimeRepository.getCrimes().collect(){
                 //assigns the value to the _crimes, _crimes.value gives the current list of Crime objects
                 //.value is a way to directly access current data in a mutableState Flow
+
+                Log.d("CrimeListViewModel", "Collected crimes: $it")
                 _crimes.value = it
             }
         }

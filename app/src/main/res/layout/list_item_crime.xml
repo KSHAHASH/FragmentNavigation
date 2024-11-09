@@ -45,5 +45,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_solved" />
+    <TextView
+        android:id="@+id/noDataMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No crimes available."
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

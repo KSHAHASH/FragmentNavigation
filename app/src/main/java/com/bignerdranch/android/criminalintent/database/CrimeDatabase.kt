@@ -14,6 +14,19 @@ abstract class CrimeDatabase : RoomDatabase(){
     //when the database is created, Room will generate concrete implementation of the DAO that you can access
     abstract fun crimeDao(): CrimeDao
 
+}
 
+
+
+
+
+//migrating from one version to another when there is the change in the database
+//as we created a suspect column to implement the implicit intent
+val migration_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+//        database.execSQL(
+//            "ALTER TABLE Crime ADD COLUMN suspect TEXT NOT NULL DEFAULT ''"
+//        )
+    }
 }
 
